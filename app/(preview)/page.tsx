@@ -1,5 +1,7 @@
 "use client";
 
+import type React from "react";
+
 import { useState, useEffect } from "react";
 import { experimental_useObject } from "ai/react";
 import { flashcardSchema, matchSchema } from "@/lib/schemas";
@@ -8,7 +10,7 @@ import { FileUp, Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
-import { z } from "zod";
+import type { z } from "zod";
 
 type ObjectType = z.infer<typeof flashcardSchema> | z.infer<typeof matchSchema>;
 
@@ -18,6 +20,7 @@ export default function LearningModes() {
   const [encodedFile, setEncodedFile] = useState<string | null>(null);
   const [mode, setMode] = useState<"flashcard" | "match" | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -33,53 +36,68 @@ export default function LearningModes() {
       }
     }
   }, [isMounted]);
-  console.log("mode2", mode);
 
+  // Create separate objects for each mode to avoid the mode switching issue
   const {
-    submit,
-    object: questions,
-    isLoading,
-  } = experimental_useObject<ObjectType>({
-    api:
-      mode === "flashcard"
-        ? "/api/generate-flashcards"
-        : "/api/generate-matches",
-    schema: mode === "flashcard" ? flashcardSchema : matchSchema,
+    submit: submitFlashcards,
+    object: flashcardQuestions,
+    isLoading: isLoadingFlashcards,
+  } = experimental_useObject<z.infer<typeof flashcardSchema>>({
+    api: "/api/generate-flashcards",
+    schema: flashcardSchema,
     initialValue: undefined,
     onError: (error) => {
       if (isMounted) {
-        toast.error("Failed to generate questions. Please try again.");
+        toast.error("Failed to generate flashcards. Please try again.");
+        setIsGenerating(false);
       }
     },
     onFinish: ({ object }) => {
-      console.log("object", object);
-
-      // Get the selected mode from localStorage
-      const selectedMode = localStorage.getItem("selectedMode") as
-        | "flashcard"
-        | "match"
-        | null;
-
-      if (!object || !selectedMode) return;
+      if (!object) return;
 
       try {
-        localStorage.setItem(
-          selectedMode === "flashcard" ? "flashcardData" : "matchData",
-          JSON.stringify(object)
-        );
-
-        toast.success(
-          `${
-            selectedMode === "flashcard" ? "Flashcards" : "Match game"
-          } generated successfully!`
-        );
-
-        router.push(selectedMode === "flashcard" ? "/flashcards" : "/match");
+        localStorage.setItem("flashcardData", JSON.stringify(object));
+        toast.success("Flashcards generated successfully!");
+        router.push("/flashcards");
       } catch (error) {
-        console.error("Error saving data:", error);
+        console.error("Error saving flashcard data:", error);
         if (isMounted) {
           toast.error("Failed to save generated content");
         }
+      } finally {
+        setIsGenerating(false);
+      }
+    },
+  });
+
+  const {
+    submit: submitMatches,
+    object: matchQuestions,
+    isLoading: isLoadingMatches,
+  } = experimental_useObject<z.infer<typeof matchSchema>>({
+    api: "/api/generate-matches",
+    schema: matchSchema,
+    initialValue: undefined,
+    onError: (error) => {
+      if (isMounted) {
+        toast.error("Failed to generate match game. Please try again.");
+        setIsGenerating(false);
+      }
+    },
+    onFinish: ({ object }) => {
+      if (!object) return;
+
+      try {
+        localStorage.setItem("matchData", JSON.stringify(object));
+        toast.success("Match game generated successfully!");
+        router.push("/match");
+      } catch (error) {
+        console.error("Error saving match data:", error);
+        if (isMounted) {
+          toast.error("Failed to save generated content");
+        }
+      } finally {
+        setIsGenerating(false);
       }
     },
   });
@@ -115,13 +133,25 @@ export default function LearningModes() {
   };
 
   const generateQuestions = (selectedMode: "flashcard" | "match") => {
-    if (!encodedFile) return;
-
-    // Store the selected mode in localStorage
-    localStorage.setItem("selectedMode", selectedMode);
+    if (!encodedFile) {
+      toast.error("Please upload a file first");
+      return;
+    }
 
     setMode(selectedMode);
-    submit({ files: [{ data: encodedFile, type: "application/pdf" }] });
+    setIsGenerating(true);
+    localStorage.setItem("selectedMode", selectedMode);
+
+    // Use the appropriate submit function based on the selected mode
+    if (selectedMode === "flashcard") {
+      submitFlashcards({
+        files: [{ data: encodedFile, type: "application/pdf" }],
+      });
+    } else {
+      submitMatches({
+        files: [{ data: encodedFile, type: "application/pdf" }],
+      });
+    }
   };
 
   // Show loading state during initial render
@@ -160,12 +190,17 @@ export default function LearningModes() {
               <p className="text-sm text-muted-foreground text-center">
                 Drop your PDF here or click to browse.
               </p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Max file size: 5MB
+              </p>
             </div>
           </CardContent>
         </Card>
       </div>
     );
   }
+
+  const isLoading = isLoadingFlashcards || isLoadingMatches || isGenerating;
 
   return (
     <div className="min-h-[100dvh] w-full flex justify-center items-center">
@@ -176,6 +211,7 @@ export default function LearningModes() {
             size="icon"
             onClick={handleBack}
             className="absolute left-4 top-4 hover:bg-transparent"
+            disabled={isLoading}
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>

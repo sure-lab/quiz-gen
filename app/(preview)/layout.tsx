@@ -8,7 +8,7 @@ const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://ai-sdk-preview-pdf-support.vercel.app"),
-  title: "PDF Support Preview",
+  title: "Quiz Gen",
   description: "Experimental preview of PDF support with the AI SDK",
 };
 
