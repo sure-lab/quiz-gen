@@ -14,7 +14,7 @@ export async function POST(req: Request) {
       {
         role: "system",
         content:
-          "You are a teacher. Create 10 flashcards based on the document content. Each flashcard should have a question and answer.",
+          "You are a teacher. Create 6 flashcards based on the document content. Each flashcard should have a question and answer.",
       },
       {
         role: "user",

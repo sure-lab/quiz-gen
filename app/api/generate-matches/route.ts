@@ -14,7 +14,7 @@ export async function POST(req: Request) {
       {
         role: "system",
         content:
-          "You are a teacher. Create 10 matching pairs based on the document content. Each pair should have a term and its definition.",
+          "You are a teacher. Create 6 matching pairs based on the document content. Each pair should have a term and its definition.",
       },
       {
         role: "user",
