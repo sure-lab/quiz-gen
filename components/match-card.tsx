@@ -192,8 +192,8 @@ export default function MatchCard({ terms }: MatchCardProps) {
                   layout
                   exit={{ opacity: 0, scale: 0.8 }}
                 >
-                  <div className="w-full h-full overflow-y-auto flex items-center justify-center">
-                    <span className="text-lg text-white break-words">
+                  <div className="w-full h-full overflow-y-auto flex items-center justify-center px-2">
+                    <span className="text-lg text-white break-words max-h-full py-1">
                       {item.term}
                     </span>
                   </div>
@@ -217,8 +217,8 @@ export default function MatchCard({ terms }: MatchCardProps) {
                   layout
                   exit={{ opacity: 0, scale: 0.8 }}
                 >
-                  <div className="w-full h-full overflow-y-auto flex items-center justify-center">
-                    <span className="text-lg text-white break-words">
+                  <div className="w-full h-full overflow-y-auto flex items-center justify-center px-2">
+                    <span className="text-lg text-white break-words max-h-full py-1">
                       {shuffledDefinitions[index]}
                     </span>
                   </div>
