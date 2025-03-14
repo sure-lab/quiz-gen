@@ -192,7 +192,11 @@ export default function MatchCard({ terms }: MatchCardProps) {
                   layout
                   exit={{ opacity: 0, scale: 0.8 }}
                 >
-                  <span className="text-lg text-white">{item.term}</span>
+                  <div className="w-full h-full overflow-y-auto flex items-center justify-center">
+                    <span className="text-lg text-white break-words">
+                      {item.term}
+                    </span>
+                  </div>
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -213,9 +217,11 @@ export default function MatchCard({ terms }: MatchCardProps) {
                   layout
                   exit={{ opacity: 0, scale: 0.8 }}
                 >
-                  <span className="text-lg text-white">
-                    {shuffledDefinitions[index]}
-                  </span>
+                  <div className="w-full h-full overflow-y-auto flex items-center justify-center">
+                    <span className="text-lg text-white break-words">
+                      {shuffledDefinitions[index]}
+                    </span>
+                  </div>
                 </motion.div>
               ))}
             </AnimatePresence>

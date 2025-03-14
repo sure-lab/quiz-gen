@@ -54,7 +54,11 @@ export default function Flashcard({
           style={{ transformStyle: "preserve-3d" }}
         >
           <div className="absolute w-full h-full bg-white dark:bg-zinc-800 rounded-xl shadow-lg p-8 flex flex-col items-center justify-center backface-hidden">
-            <h2 className="text-3xl font-normal text-center">{question}</h2>
+            <div className="w-full h-full overflow-y-auto flex items-center justify-center">
+              <h2 className="text-3xl font-normal text-center break-words">
+                {question}
+              </h2>
+            </div>
             <div className="absolute bottom-6 text-sm text-gray-500">
               Click the card to flip
             </div>
@@ -66,7 +70,11 @@ export default function Flashcard({
               backfaceVisibility: "hidden",
             }}
           >
-            <p className="text-3xl font-normal text-center">{answer}</p>
+            <div className="w-full h-full overflow-y-auto flex items-center justify-center">
+              <p className="text-3xl font-normal text-center break-words">
+                {answer}
+              </p>
+            </div>
             <div className="absolute bottom-6 text-sm text-gray-500">
               Click the card to flip
             </div>
